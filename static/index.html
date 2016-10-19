@@ -39,7 +39,11 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
             try {
                 if (xhr.status==200) {
                     //XXX: parse some JSON from the request!
+                    var v=JSON.parse(xhr.responseText);
                     //XXX: Pass the data to the callback!
+                    if(callback){
+                        callback(v);
+                    }
                 }
             } 
             catch(e) {
@@ -48,12 +52,16 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
         }
     };
     //XXX: POST to a URL
+    xhr.open("POST",url);
     //XXX: set the mimetype and the accept headers!
     // Remember to use application/json !
+    xhr.setRequestHeader("Accept",'application/json');
+    xhr.setRequestHeader("Content-Type",'application/json');
+    xhr.send(JSON.stringify(objects));
 }
 
 
-world = {};
+var world = {};
 
 //XXX: TODO Make this prettier!
 function drawCircle(context,entity) {
@@ -135,9 +143,18 @@ function getPosition(e) {
 
 
 function addEntity(entity, data) {
+    console.log(world);
     world[entity] = data;
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just  modified!
+    url="http://127.0.0.1:5000/entities/" + entity;
+    var objects={};
+    objects["method"]="POST";
+    objects["Content-type"]="application/json";
+    objects["Accept"]="application/json";
+    objects["body"]=JSON.stringify(data);
+    var callback;
+    sendJSONXMLHTTPRequest(url,objects,callback);
 
 }
 
@@ -262,6 +279,14 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
+    //var callback;
+    sendJSONXMLHTTPRequest("http://127.0.0.1:5000/world", {"method":"GET"},
+    //console.log(callback);
+        function (data) {
+            world = data;
+            drawNextFrame();
+        }
+    );
     drawFrame();
 }
 

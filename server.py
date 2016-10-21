@@ -89,18 +89,19 @@ def update(entity):
 def world():
     '''you should probably return the world here'''
     return flask.jsonify(myWorld.world())
-    #return myWorld
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
+    if (myWorld.get(entity)=={}):
+        entity=str(flask.jsonify(myWorld.get(entity)))
+        entity=entity.replace("\n","")
+        print entity
     return flask.jsonify(myWorld.get(entity))
-    #return myWorld.get(entity)
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    #return myWorld.clear()
     return flask.jsonify(myWorld.world())
 
 if __name__ == "__main__":
